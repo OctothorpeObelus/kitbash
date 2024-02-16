@@ -1,0 +1,11 @@
+{
+	"title"		:	"Working Title",
+	"type"		:	"Gamemode",
+	"tags"		:	[ "Fun", "Comic" ],
+	"ignore"	:
+	[
+		"*.psd",
+		"*.vcproj",
+		"*.svn*"
+	]
+}
