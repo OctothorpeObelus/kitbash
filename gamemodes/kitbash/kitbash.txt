@@ -1,0 +1,26 @@
+"kitbash"
+{
+	"base"		"sandbox"
+	"title"		"Kitbash"
+	"maps"		"^kb_"
+	"menusystem"	"1"
+
+	"author_name"	"Octo"
+	"author_email"	""
+
+	"icon"	""
+	"info"	""
+	"hide"	"0"
+
+	"settings"
+	{
+		1
+		{
+			"name"		"kb_maxfrags"
+			"text"		"Max Frags"
+			"help"		"The maxiumum number of frags before a round ends"
+			"type"		"Numeric"
+			"default"	"30"
+		}
+	}
+}
