@@ -31,6 +31,12 @@ end
 function SWEP:Deploy()
     self:SendWeaponAnim(ACT_VM_DRAW)
     self:SetHoldType( self.HoldType )
+
+    if SERVER then return end
+
+    local rnd = math.random(0, 1)
+    self:SetBodygroup(0, rnd)
+    LocalPlayer():GetViewModel():SetBodygroup(0, rnd)
 end
 
 function SWEP:PrimaryAttack()
@@ -40,6 +46,7 @@ function SWEP:PrimaryAttack()
 
     net.Start("kb_apc_grenade_spawn")
         net.WriteEntity(LocalPlayer())
+        net.WriteBool(LocalPlayer():GetViewModel():GetBodygroup(0) == 0)
     net.SendToServer()
 end
 
@@ -49,6 +56,7 @@ end
 if SERVER then
     net.Receive("kb_apc_grenade_spawn", function()
         local ply = net.ReadEntity()
+        local bg = net.ReadBool()
         local pos = ply:EyePos()
         local ang = ply:EyeAngles()
         local dir = ply:GetAimVector()
@@ -58,6 +66,10 @@ if SERVER then
 
         timer.Simple(11 / 24, function()
             weapon:SendWeaponAnim(ACT_VM_DRAW)
+            local rnd = math.random(0, 1)
+            weapon:SetBodygroup(0, rnd)
+            ply:GetViewModel():SetBodygroup(0, rnd)
+            bg = rnd
         end)
 
         local spawnDist = 128
@@ -71,7 +83,13 @@ if SERVER then
         })
         local shootPos = spawnRay.HitPos
         local apc = ents.Create("prop_physics")
-        apc:SetModel("models/combine_apc.mdl")
+        
+        if bg == 0 or bg then
+            apc:SetModel("models/combine_apc.mdl")
+        else
+            apc:SetModel("models/kitbash/props/apc001.mdl")
+        end
+        
         apc:SetPos(shootPos - Vector())
         apc:SetAngles(ang)
         apc:Spawn()
