@@ -8,6 +8,7 @@ SWEP.Author = "Octo"
 SWEP.Purpose = "KILL"
 SWEP.Instructions = "Primary fire: Throw APC"
 
+SWEP.WorldModel = "models/kitbash/weapons/w_apc_grenade.mdl"
 SWEP.ViewModel = "models/kitbash/weapons/c_apc_grenade.mdl"
 SWEP.Spawnable = true
 SWEP.Slot = 4
@@ -40,6 +41,8 @@ function SWEP:Deploy()
 end
 
 function SWEP:PrimaryAttack()
+    if not IsFirstTimePredicted() or not self:CanPrimaryAttack() or self:GetNextPrimaryFire() > CurTime() then return end
+
     self:SetNextPrimaryFire(CurTime() + 5)
 
     if SERVER then return end
@@ -64,6 +67,8 @@ if SERVER then
         weapon.Owner:SetAnimation(PLAYER_ATTACK1)
 	    weapon:SendWeaponAnim(ACT_VM_THROW)
 
+        ply:EmitSound("kitbash/shared/yeet.mp3", 75, math.random(70.0, 130.0))
+
         timer.Simple(11 / 24, function()
             weapon:SendWeaponAnim(ACT_VM_DRAW)
             local rnd = math.random(0, 1)
@@ -72,7 +77,7 @@ if SERVER then
             bg = rnd
         end)
 
-        local spawnDist = 128
+        local spawnDist = 96
         local spawnRay = util.TraceHull({
             start = pos,
             endpos = pos + dir * spawnDist,
@@ -94,13 +99,18 @@ if SERVER then
         apc:SetAngles(ang)
         apc:Spawn()
         apc:SetOwner(ply)
+        apc:EmitSound("kitbash/weapons/apc_grenade/horn" .. math.random(1, 12) .. ".wav", 120, math.random(70.0, 130.0))
+        apc.WeaponUsed = weapon
         local phys = apc:GetPhysicsObject()
         phys:SetVelocityInstantaneous(ply:GetVelocity() + dir * 1000)
         phys:SetMaterial("metalvehicle")
+        phys:EnableDrag(false)
 
         apc.FireTime = CurTime()
         apc.NotMoving = math.huge
         table.insert(projectiles, apc)
+
+        print(CurTime())
     end)
 
     hook.Add("Tick", "kb_apc_grenade_despawn_handler", function()
